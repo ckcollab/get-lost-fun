@@ -1,0 +1,32 @@
+/**
+ * Rules for level code files
+ * These files contain the game logic for the Get Lost level
+ */
+
+match level/code/**/*.ts {
+  description: "
+    This file contains game logic for a Get Lost level. 
+    
+    The level code files implement game mechanics, interactions, and behaviors for the level.
+    They use the @gl library which provides API access to the Get Lost game engine.
+    
+    Important API namespaces:
+    - @gl/api/w2h/host: Core host APIs for interacting with the game engine
+    - @gl/types: Type definitions for game objects
+    - @gl/utils: Utility functions for common operations
+  "
+  
+  include @file level/code/strings.ts
+  include @file level/code/card.ts
+}
+
+match level/code/main.ts {
+  description: "
+    This is the main entry point for the level code.
+    
+    It exports several important functions that are called by the game engine:
+    - initRoom(): Called when the level is loaded, sets up the level environment
+    - tick(): Called every frame, handles continuous game logic
+    - destroy(): Called when the level is unloaded, cleans up resources
+  "
+} 

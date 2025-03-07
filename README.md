@@ -35,3 +35,10 @@ If you hover over the `Forwarded Address` field, you have the option to open the
 # Upgrading
 
 To upgrade your level to use the latest Get Lost engine, press `ctrl+shift+b` and select `Upgrade Level`. This will copy your level code to a safe place, upgrade your repo to use the latest engine, and then put your level code back. If you have any issues, ask in the Discord.
+
+# Running locally, like with Cursor AI
+
+```bash
+npm i
+npm run dev -- --host
+```

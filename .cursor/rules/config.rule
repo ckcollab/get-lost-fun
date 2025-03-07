@@ -1,0 +1,51 @@
+/**
+ * Rules for configuration files
+ * These files configure the development environment for the Get Lost level
+ */
+
+match package.json {
+  description: "
+    This is the npm package configuration file for the Get Lost level template.
+    
+    It defines:
+    - Project dependencies and versions
+    - Development scripts
+    - Project metadata
+    
+    Use 'npm run dev' to start the development server.
+  "
+  
+  include @file package-lock.json
+}
+
+match tsconfig*.json {
+  description: "
+    TypeScript configuration for the project.
+    
+    There are multiple TypeScript config files:
+    - tsconfig.json: Base configuration
+    - tsconfig.app.json: App-specific configuration
+    - tsconfig.node.json: Node-specific configuration
+  "
+}
+
+match vite.config.ts {
+  description: "
+    Vite configuration file for the project.
+    
+    Vite is used as the build tool and development server.
+    This file configures:
+    - Build options
+    - Development server settings
+    - Plugins
+  "
+}
+
+match eslint.config.js {
+  description: "
+    ESLint configuration file for the project.
+    
+    This file configures the linting rules for the codebase.
+    It uses modern ESLint flat config format.
+  "
+} 

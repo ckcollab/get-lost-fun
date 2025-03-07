@@ -1,0 +1,26 @@
+/**
+ * Rules for source code
+ * These files contain the React frontend and supporting code
+ */
+
+match src/**/*.{ts,tsx} {
+  description: "
+    This file is part of the React frontend for the Get Lost level template.
+    
+    The frontend provides:
+    - The game shell that loads and runs the level
+    - UI components for in-game interfaces
+    - Supporting utilities
+  "
+}
+
+match src/components/**/*.{ts,tsx} {
+  description: "
+    This is a React component for the Get Lost level template.
+    
+    Components include:
+    - UI elements
+    - Game interface components
+    - Reusable visual elements
+  "
+} 

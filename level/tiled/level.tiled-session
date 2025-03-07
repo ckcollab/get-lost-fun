@@ -13,6 +13,12 @@
             "scaleInDock": 1,
             "scaleInEditor": 1
         },
+        "Knight.tsj": {
+            "scaleInDock": 1
+        },
+        "Master.tsj": {
+            "scaleInDock": 1
+        },
         "Spirit.tsj": {
             "scaleInDock": 1,
             "scaleInEditor": 1
@@ -30,8 +36,8 @@
             "scale": 2,
             "selectedLayer": 10,
             "viewCenter": {
-                "x": 136.25,
-                "y": -124.75
+                "x": 113.25,
+                "y": -128.5
             }
         },
         "tronFreeTiles.tsj": {
@@ -52,9 +58,9 @@
     "project": "level.tiled-project",
     "property.type": "string",
     "recentFiles": [
-        "Spirit.tsj",
         "TilesetDesert.tsj",
         "level.tmj",
+        "Spirit.tsj",
         "Items.tsj"
     ],
     "tileset.lastUsedFormat": "json",
