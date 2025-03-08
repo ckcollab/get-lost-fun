@@ -16,5 +16,13 @@ export function exits(): Exit[] {
     {
       name: "well",
     },
+    {
+      name: "pokemon-center",
+      description: "Go to the Pokemon Center to heal your Pokemon",
+    },
+    {
+      name: "battle-arena",
+      description: "Enter the Pokemon Battle Arena to challenge opponents",
+    },
   ];
 }

@@ -7,20 +7,25 @@ import { Card } from "@gl/types/card";
 export function card(): Card {
   return {
     level: {
-      name: "Your level name",
+      name: "Pokemon Battle Arena",
       version: 1,
     },
-    source: "https://github.com/your-username/your-repo",
+    source: "https://github.com/your-username/pokemon-battle-arena",
     credits: [
       {
         name: "Your name",
-        role: "Author",
+        role: "Developer",
         link: "https://your-website.com",
       },
       {
-        name: "Collaborator name",
-        role: "Artist",
-        link: "https://artist-website.com",
+        name: "Game Freak",
+        role: "Original Pokemon Concept",
+        link: "https://www.pokemon.com",
+      },
+      {
+        name: "GetLost Level Template",
+        role: "Base Template",
+        link: "https://getlost.city",
       },
     ],
   };

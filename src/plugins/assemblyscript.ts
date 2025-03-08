@@ -30,8 +30,8 @@ class GLMetaAdder extends Transform {
   }
 }
 
-const shimDir = resolve(__dirname, "..", "..", "level", "assemblyscript");
-const asmLibDir = resolve(__dirname, "..", "..", "level", "assemblyscript");
+const asmLibDir = resolve(__dirname, "..", "..", "assemblyscript");
+const shimDir = asmLibDir;
 const codeDir = resolve(__dirname, "..", "..", "level", "code");
 
 async function compile(
@@ -105,17 +105,6 @@ export default function compileWasmPlugin() {
 
         const match = url.match(/^\/main.wasm$/);
         if (match) {
-          if (req.method === "OPTIONS") {
-            res.setHeader("Access-Control-Allow-Origin", "*");
-            res.setHeader("Access-Control-Allow-Methods", "*");
-            res.setHeader("Access-Control-Allow-Headers", "*");
-            res.setHeader("Access-Control-Allow-Private-Network", "true");
-            res.setHeader("cross-origin-resource-policy", "cross-origin");
-            res.statusCode = 200;
-            res.end();
-            return;
-          }
-
           try {
             const levelFile = resolve(codeDir, "main.ts");
             const artifacts = await compile(engineVersion, [levelFile]);
@@ -139,11 +128,6 @@ export default function compileWasmPlugin() {
               await fs.writeFile(jsFile, artifacts.js);
             }
 
-            res.setHeader("Access-Control-Allow-Origin", "*");
-            res.setHeader("Access-Control-Allow-Methods", "*");
-            res.setHeader("Access-Control-Allow-Headers", "*");
-            res.setHeader("Access-Control-Allow-Private-Network", "true");
-            res.setHeader("cross-origin-resource-policy", "cross-origin");
             res.setHeader("Content-Type", "application/wasm");
             res.statusCode = 200;
 
