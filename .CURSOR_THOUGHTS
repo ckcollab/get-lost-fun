@@ -1,0 +1,163 @@
+# Pokémon Battle Arena - Get Lost Level Template Project
+
+## Overview
+This project implements a Pokémon battle arena using the "Get Lost" game template. Players can walk into a battle arena to trigger a turn-based battle between Charizard and Bulbasaur.
+
+## Technical Details
+- **Language**: AssemblyScript (a TypeScript-like language that compiles to WebAssembly)
+- **Game Engine**: "Get Lost" game engine
+- **Main Constraints**: 
+  - Limited API available in AssemblyScript environment
+  - No direct sprite manipulation (only loading)
+  - WebAssembly limitations (e.g., no Math.random without seed)
+
+## Project Structure
+
+### Important Directories
+- `/workspaces/getlost-level-template/level/code/` - Main game code
+- `/workspaces/getlost-level-template/level/tiled/` - Tiled map files
+- `/workspaces/getlost-level-template/level/art/` - Sprite and art assets
+- `/workspaces/getlost-level-template/level/sounds/` - Sound files
+- `/workspaces/getlost-level-template/level_backup/` - Original template for reference
+
+### Key Files
+- `level/code/main.ts` - Main game logic, battle system
+- `level/code/strings.ts` - Text strings used in the game
+- `level/tiled/level.tmj` - Map layout for the game
+
+## Implementation Details
+
+### Battle System
+- **Turn-based** battle between Charizard (player) and Bulbasaur (AI)
+- Player can choose between 3 attacks (Flamethrower, Dragon Claw, Fire Spin)
+- AI opponent uses 3 attacks (Vine Whip, Razor Leaf, Solar Beam)
+- Health tracking for both Pokémon
+- Battle ending conditions (win/lose states)
+
+### Visual Elements
+- Using text-based representations with emojis for Pokémon
+- Visual battle arena with distinct tiles
+- Timer-based "flashing" effects during attacks
+- Health display updates
+
+### Technical Workarounds
+- Replaced Math.random() with deterministic pattern based on current HP values
+- Using displaySign instead of more complex panel displays (API limitation)
+- Sound effects loaded with specific configuration instead of direct parameter calls
+
+### Map Design
+- Top-down view with a distinct battle arena
+- Player must walk into the arena to trigger battles
+- After battle ends, player is returned to position outside arena
+
+## Tileset Information
+
+### Tileset IDs
+- **TilesetFloor**: firstgid = 241 (base ID for floor tiles)
+- **TilesetDesert**: firstgid = 1 (base ID for desert tiles)
+- **Other tilesets**: Knight (813), Master (841), Fish (869), Spirit (870)
+
+### Important Tile IDs
+To use a tile, add its index to the firstgid of its tileset.
+
+#### Walkable Ground Tiles
+- Main walkable ground: TilesetFloor #23 (ID in TMJ file: 264 = 241 + 23)
+
+#### Battle Arena Border Tiles (from TilesetFloor)
+- **Top Row**:
+  - Top left corner: ID 241 (= 241 + 0)
+  - Top middle: ID 242 (= 241 + 1)
+  - Top right corner: ID 243 (= 241 + 2)
+- **Middle Row**:
+  - Middle left: ID 263 (= 241 + 22)
+  - Middle (walkable): ID 264 (= 241 + 23)
+  - Middle right: ID 265 (= 241 + 24)
+- **Bottom Row**:
+  - Bottom left corner: ID 285 (= 241 + 44)
+  - Bottom middle: ID 286 (= 241 + 45)
+  - Bottom right corner: ID 287 (= 241 + 46)
+
+### Using Tiles in the TMJ File
+In the level.tmj file, each layer has "data" arrays with tile IDs. To create borders:
+1. Use the above IDs to create the boundary of the battle arena
+2. Fill inside with walkable ground tiles (ID 264)
+3. Leave gaps (ID 0) for entrances
+
+### Example Arena Layout
+```
+241, 242, 242, 242, 243
+263, 264, 264, 264, 265
+263, 264, 264, 264, 265
+285, 286,   0, 286, 287
+```
+(Where 0 represents an entrance)
+
+## API Notes
+Available APIs in host.text:
+- displaySign
+- displayInteraction
+
+NOT available:
+- displayPanel 
+- hidePanel
+
+## Future Improvements
+- Add more Pokémon varieties
+- Implement item system beyond potions
+- Add experience and leveling system
+- Expand the map with multiple battle areas
+
+## Reference
+The original template is stored in level_backup/ for reference.
+
+## Pokémon Art Assets
+
+### Current Pokémon Sprites
+
+#### Charizard
+- **Used Asset**: "Actor/Monsters/Dragon/SpriteSheet.png"
+- **Faceset**: "Actor/Monsters/Dragon/Faceset.png"
+- **Visual Representation**: Red dragon sprite with flames
+- **Battle Position**: Left side of battle arena
+- **Emoji Used**: 🔥 (fire emoji)
+
+#### Bulbasaur
+- **Used Asset**: "Actor/Monsters/KappaGreen/SpriteSheet.png"
+- **Faceset**: "Actor/Monsters/KappaGreen/Faceset.png"
+- **Visual Representation**: Green turtle-like sprite
+- **Battle Position**: Right side of battle arena
+- **Emoji Used**: 🌿 (herb emoji)
+
+### Possible Future Pokémon Types and Suggested Assets
+
+#### Water Types
+- Squirtle: "Actor/Monsters/Fish/" or "Actor/Monsters/Octopus/"
+- Emoji: 💧 (water droplet)
+
+#### Electric Types
+- Pikachu: "Actor/Monsters/MouseBlack/" or "Actor/Monsters/YellowsBat/"
+- Emoji: ⚡ (lightning bolt)
+
+#### Rock/Ground Types
+- Geodude: "Actor/Monsters/Reptile/" or "Actor/Monsters/Spirit/"
+- Emoji: 🪨 (rock)
+
+### Sound Effects
+- **Current Sound Files**: 
+  - Battle Music: "Musics/17 - Fight.ogg" (exists in project)
+  - Attack Sound Effects: 
+    - "FX/pokemon_boom_explosion.mp3" - Used for Charizard's attacks (fire-type)
+    - "FX/soft_boom.mp3" - Used for Bulbasaur's attacks (grass-type)
+
+- **Sound Implementation**:
+  - Charizard's attacks use "pokemon_boom_explosion.mp3" for a more explosive sound fitting a fire type
+  - Bulbasaur's attacks use "soft_boom.mp3" for a softer impact sound fitting a grass type
+  - All sound effects are loaded with autoplay: true and loop: false
+  - Volume set to 0.6 for all effects
+
+- **Adding More Sound Effects**:
+  - Additional sound effects can be added to the "level/sounds/FX/" folder
+  - Useful sounds would include:
+    - Healing sounds for potion use
+    - Critical hit variations
+    - Victory/defeat themes 

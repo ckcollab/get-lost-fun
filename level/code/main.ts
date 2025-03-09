@@ -7,286 +7,390 @@ export { exits } from "./exits";
 export { pickups } from "./pickups";
 export { strings } from "./strings";
 
-// Import Pokemon battle system
-import { Pokemon, createStarterPokemon } from "./pokemon";
-import { BattleManager, BattleState, BattleResult } from "./battle";
-import { BattleUI } from "./battleUI";
-
 const log = host.debug.log;
 
+// Game state variables
 let tsfid!: i32;
 let player!: Player;
 let music!: i32;
+let battleMusic!: i32;
+let hasPotion: i32 = 1; // Healing potion counter
 
-// Pokemon battle system
-let playerPokemon: Pokemon | null = null;
-let battleManager: BattleManager | null = null;
-let battleUI: BattleUI | null = null;
-let inBattle: boolean = false;
-let hasChosenStarter: boolean = false;
-let battleMusic: i32 = -1;
+// Pokemon battle variables
+let battleActive: boolean = false;
+let playerTurn: boolean = true;
+let attackInProgress: boolean = false;
+
+// Pokemon stats
+let charizardHP: i32 = 100;
+let charizardMaxHP: i32 = 100;
+let bulbasaurHP: i32 = 100;
+let bulbasaurMaxHP: i32 = 100;
+
+// Pokemon sprite identifiers
+let charizardSprite: i32 = -1;
+let bulbasaurSprite: i32 = -1;
+let healthBarPlayer: i32 = -1;
+let healthBarOpponent: i32 = -1;
+
+// Attack timers
+let attackAnimationTimer: string = "attack-animation";
+let battleEndTimer: string = "battle-end";
+let charizardX: f32 = 5.0;
+let charizardY: f32 = 8.0;
+let bulbasaurX: f32 = 12.0;
+let bulbasaurY: f32 = 8.0;
 
 // This function initializes your level. It's called once when the level is
 // loaded. Use it to set up your level, like setting the time of day, or adding
 // filters.
 export function initRoom(): Room {
   player = Player.default();
-
-  const room = new Room();
-  tsfid = host.filters.addTiltShift(0.06);
-
-  // const time = Date.UTC(2025, 1, 13, 9, 0, 0, 0);
-  // host.time.setSunTime(time);
-
-  music = host.sound.loadSound({
-    name: "Musics/17 - Fight.ogg",
-    loop: true,
-    autoplay: true,
-    volume: 0.3,
-  });
   
-  // Preload battle music
-  battleMusic = host.sound.loadSound({
-    name: "Musics/13 - Credit.ogg",
-    loop: true,
-    autoplay: false,
-    volume: 0.5,
-  });
-
+  // Create room
+  const room = new Room();
+  charizardHP = 100;
+  bulbasaurHP = 100;
+  
+  tsfid = host.filters.addTiltShift(0.06);
+  
+  // Show an immediate welcome message
+  host.text.displaySign("welcome-title", "welcome-body");
+  
+  // Log the initialization for debugging
+  log("Pokemon Battle Arena initialized. Enter the arena to start a battle!");
+  
   return room;
 }
 
+// No need for a separate function, we'll use simple signs
+
+export function setupBattleArena(): void {
+  log("Setting up battle arena...");
+  
+  // Load the sprites for the Pokemon
+  // Note: In this API we can only load sprites, but we can't manipulate them directly
+  
+  // Create Charizard sprite (player's Pokemon)
+  charizardSprite = host.sprite.loadSpriteSheet("Actor/Monsters/Dragon/SpriteSheet.png");
+  
+  // Create Bulbasaur sprite (opponent)
+  bulbasaurSprite = host.sprite.loadSpriteSheet("Actor/Monsters/KappaGreen/SpriteSheet.png");
+  
+  // Create visual representations using simple signs
+  host.text.displaySign("charizard-visual", "🔥 CHARIZARD 🔥");
+  host.text.displaySign("bulbasaur-visual", "🌿 BULBASAUR 🌿");
+  
+  // Load battle music
+  battleMusic = host.sound.loadSound({
+    name: "Musics/17 - Fight.ogg",
+    loop: true,
+    autoplay: true,
+    volume: 0.5,
+  });
+  
+  // Set battle state
+  battleActive = true;
+  playerTurn = true;
+  
+  // Hide the player character during battle
+  host.player.setPos(-100, -100); // Move player off-screen
+  
+  // Show battle intro
+  host.text.displaySign("battle-start-title", "battle-start-body");
+  
+  // Start the battle sequence after intro
+  host.timer.start("battle-intro", 3, false, 0);
+}
+
+// Simplified function for Pokemon visuals - we'll just use displaySign
+function createPokemonVisuals(): void {
+  // We'll use text.displaySign for simplicity
+  host.text.displaySign("charizard-visual", "🔥 CHARIZARD 🔥");
+  host.text.displaySign("bulbasaur-visual", "🌿 BULBASAUR 🌿");
+  
+  // Update health bars
+  updateHealthBars();
+}
+
+// Hide Pokemon visuals when battle ends - not needed anymore since each displaySign auto-hides
+
 export function movePlayer(x: f32, y: f32): void {
-  // Only allow movement if not in battle
-  if (!inBattle) {
-    player.direction.x = x;
-    player.direction.y = y;
-  } else if (battleUI) {
-    // If in battle, handle battle UI input
-    battleUI.handleInput(x, y);
-  }
+  player.direction.x = x;
+  player.direction.y = y;
 }
 
 // Called when a timer event is triggered.
 export function timerEvent(name: string, userData: i32): void {
   log(`Timer event: ${name}, ${userData}`);
+  
+  if (name === "battle-intro") {
+    // Show battle options after intro
+    showBattleOptions();
+  } else if (name === "show-attack-options") {
+    // Show the attack options after displaying status
+    if (battleActive && playerTurn && !attackInProgress) {
+      host.text.displayInteraction("battle-options-title", "battle-options-body", [
+        "attack-flamethrower",
+        "attack-dragon-claw",
+        "attack-fire-spin"
+      ]);
+    }
+  } else if (name === attackAnimationTimer) {
+    // Attack animation finished
+    attackInProgress = false;
+    
+    // Check if battle should continue
+    if (charizardHP <= 0 || bulbasaurHP <= 0) {
+      // Battle ended
+      host.timer.start(battleEndTimer, 1, false, 0);
+    } else if (!playerTurn) {
+      // AI turn
+      aiAttack();
+    } else {
+      // Back to player's turn
+      showBattleOptions();
+    }
+  } else if (name === battleEndTimer) {
+    // Show battle results
+    if (charizardHP <= 0) {
+      host.text.displaySign("battle-lose-title", "battle-lose-body");
+    } else {
+      host.text.displaySign("battle-win-title", "battle-win-body");
+    }
+    
+    // Return player to normal position after battle
+    host.timer.start("return-player", 3, false, 0);
+  } else if (name === "return-player") {
+    // End battle mode and return player to arena entrance
+    battleActive = false;
+    host.player.setPos(100, 150);
+  } else if (name === "start-battle") {
+    // Start the actual battle
+    setupBattleArena();
+  } else if (name === "flash-charizard") {
+    // Flash effect for Charizard by displaying sign again
+    host.text.displaySign("charizard-visual", "🔥 CHARIZARD 🔥");
+  } else if (name === "flash-bulbasaur") {
+    // Flash effect for Bulbasaur by displaying sign again
+    host.text.displaySign("bulbasaur-visual", "🌿 BULBASAUR 🌿");
+    
+    // Update health information
+    updateHealthBars();
+  }
+}
+
+function showBattleOptions(): void {
+  if (battleActive && playerTurn && !attackInProgress) {
+    // Create a custom battle status message to show before options
+    const battleStatus = `Charizard HP: ${charizardHP}/${charizardMaxHP} | Bulbasaur HP: ${bulbasaurHP}/${bulbasaurMaxHP}`;
+    
+    // Display the battle status first
+    host.text.displaySign("battle-status", battleStatus);
+    
+    // After a short delay, show the attack options
+    host.timer.start("show-attack-options", 2, false, 0);
+  }
 }
 
 // Called when an async asset has been loaded.
 export function assetLoadedEvent(id: i32): void {}
 
-// When a key is pressed, this function is called. The `slug` is the key that
-// was pressed, and `down` is true if the key was pressed down, and false if it
-// was released.
-export function keyPressEvent(slug: string, down: bool): void {
-  if (inBattle && down) {
-    // Handle battle key controls
-    if (slug === "e" || slug === "Enter") {
-      // Confirm selection in battle
-    } else if (slug === "Escape") {
-      // Try to escape battle
-      if (battleManager) {
-        battleManager.selectOption(BattleOption.RUN);
-      }
-    }
+export function pickupEvent(slug: string, took: bool): void {
+  log(`Pickup event: ${slug}, ${took}`);
+  
+  if (slug === "potion" && took) {
+    // Heal Charizard
+    charizardHP = charizardMaxHP;
+    updateHealthBars();
   }
 }
+
+// When a key is pressed, this function is called.
+export function keyPressEvent(slug: string, down: bool): void {}
 
 export function choiceMadeEvent(textSlug: string, choice: string): void {
   log(`Choice made for ${textSlug}: ${choice}`);
   
-  // Handle Pokemon starter selection
-  if (textSlug === "pokemon-select-body") {
-    const starterPokemon = createStarterPokemon();
-    
-    if (choice === "choose-flamander") {
-      playerPokemon = starterPokemon.get("flamander");
-      hasChosenStarter = true;
-      host.text.displaySign("starter-choice-title", "You chose Flamander!");
-    } else if (choice === "choose-aquaxol") {
-      playerPokemon = starterPokemon.get("aquaxol");
-      hasChosenStarter = true;
-      host.text.displaySign("starter-choice-title", "You chose Aquaxol!");
-    } else if (choice === "choose-leafslime") {
-      playerPokemon = starterPokemon.get("leafslime");
-      hasChosenStarter = true;
-      host.text.displaySign("starter-choice-title", "You chose Leafslime!");
+  if (textSlug === "battle-options-body") {
+    // Player attack chosen
+    if (choice === "attack-flamethrower") {
+      playerAttack("flamethrower", 20);
+    } else if (choice === "attack-dragon-claw") {
+      playerAttack("dragon-claw", 15);
+    } else if (choice === "attack-fire-spin") {
+      playerAttack("fire-spin", 25);
     }
-  }
-  // Handle original well interaction
-  else if (textSlug === "well-body" && choice === "jump-down") {
-    host.map.exit("well", true);
+  } else if (textSlug === "battle-end-body" || 
+             textSlug === "battle-win-body" || 
+             textSlug === "battle-lose-body") {
+    // End battle dialogue
+    // Will return player via timer
   }
 }
 
-// When a tile collision event occurs, this function is called. You can use this
-// similar to a sensor event, but it's triggered by the collision of a tile.
-// Most times you'll probably want to respond to a sensor event instead.
+// Update playerAttack function
+function playerAttack(attackName: string, damage: i32): void {
+  // Set attack in progress
+  attackInProgress = true;
+  
+  // Display attack message
+  let attackMessage = "";
+  if (attackName === "attack-flamethrower") {
+    attackMessage = "player-attack-flamethrower";
+    // Create attack flash effect
+    host.timer.start("flash-charizard", 0.3, false, 0);
+  } else if (attackName === "attack-dragon-claw") {
+    attackMessage = "player-attack-dragon-claw";
+    // Create attack flash effect
+    host.timer.start("flash-charizard", 0.3, false, 0);
+  } else if (attackName === "attack-fire-spin") {
+    attackMessage = "player-attack-fire-spin";
+    // Create attack flash effect
+    host.timer.start("flash-charizard", 0.3, false, 0);
+  }
+  
+  // Display the attack message
+  host.text.displaySign("player-attack-title", attackMessage);
+  
+  // Apply damage to Bulbasaur
+  bulbasaurHP = max(0, bulbasaurHP - damage);
+  
+  // Play attack sound - use the pokemon_boom_explosion.mp3 for Charizard's attacks
+  const attackSound = host.sound.loadSound({
+    name: "FX/pokemon_boom_explosion.mp3",
+    loop: false,
+    autoplay: true,
+    volume: 0.6,
+  });
+  
+  // Flash the Bulbasaur sprite to show damage
+  host.timer.start("flash-bulbasaur", 0.3, false, 0);
+  
+  // Update health displays
+  updateHealthBars();
+  
+  // End player turn and start AI turn after animation delay
+  playerTurn = false;
+  host.timer.start(attackAnimationTimer, 2, false, 0);
+}
+
+// Update aiAttack function
+function aiAttack(): void {
+  log("AI attacking...");
+  
+  // Set attack in progress
+  attackInProgress = true;
+  
+  // Determine attack type (no randomness)
+  let attackType = (charizardHP + bulbasaurHP) % 3;
+  let attackName = "";
+  let damage = 0;
+  
+  // Set attack parameters based on type
+  if (attackType === 0) {
+    attackName = "opponent-attack-vine-whip";
+    damage = 10;
+    // Create attack flash effect
+    host.timer.start("flash-bulbasaur", 0.3, false, 0);
+  } else if (attackType === 1) {
+    attackName = "opponent-attack-razor-leaf";
+    damage = 15;
+    // Create attack flash effect
+    host.timer.start("flash-bulbasaur", 0.3, false, 0);
+  } else {
+    attackName = "opponent-attack-solar-beam";
+    damage = 20;
+    // Create attack flash effect
+    host.timer.start("flash-bulbasaur", 0.3, false, 0);
+  }
+  
+  // Display the attack message
+  host.text.displaySign("opponent-attack-title", attackName);
+  
+  // Apply damage to player
+  charizardHP = max(0, charizardHP - damage);
+  
+  // Play attack sound - use the soft_boom.mp3 for Bulbasaur's attacks
+  const attackSound = host.sound.loadSound({
+    name: "FX/soft_boom.mp3",
+    loop: false,
+    autoplay: true,
+    volume: 0.6,
+  });
+  
+  // Flash the Charizard sprite to show damage
+  host.timer.start("flash-charizard", 0.3, false, 0);
+  
+  // Update health displays
+  updateHealthBars();
+  
+  // End AI turn and return to player after animation
+  playerTurn = true;
+  host.timer.start(attackAnimationTimer, 2, false, 0);
+}
+
+function updateHealthBars(): void {
+  // Since we can't manipulate the sprites directly,
+  // we'll update the health information in the battle text
+  // We'll show current HP in the battle options title
+  log(`Charizard HP: ${charizardHP}/${charizardMaxHP}, Bulbasaur HP: ${bulbasaurHP}/${bulbasaurMaxHP}`);
+}
+
+function resetBattle(): void {
+  battleActive = false;
+  playerTurn = true;
+  attackInProgress = false;
+  charizardHP = charizardMaxHP;
+  bulbasaurHP = bulbasaurMaxHP;
+  
+  // We don't need to explicitly hide visuals
+  // DisplaySign messages auto-hide based on context switches
+}
+
+// When a tile collision event occurs, this function is called.
 export function tileCollisionEvent(
   tsTileId: i32,
   gid: i32,
   entered: bool,
   column: i32,
   row: i32
-): void {
-  // log(`Collision event: ${tsTileId}, ${gid}, ${entered} @ ${column}, ${row}`);
-}
-
-let sawOasisSign = false;
+): void {}
 
 // Called when a sensor is triggered.
 export function sensorEvent(name: string, entered: bool): void {
-  log(`Sensor event: ${name}, ${entered}`);
+  log(`Sensor event triggered: ${name}, entered=${entered}`);
   
-  // Original sensor events 
-  if (name === "oasis" && entered && !sawOasisSign) {
-    host.text.displaySign("oasis-entry-title", "oasis-entry-body");
-    sawOasisSign = true;
-  } 
-  // New Pokemon-related sensor events
-  else if (name === "pokemon-center" && entered) {
-    // Show Pokemon selection if player hasn't chosen a starter yet
-    if (!hasChosenStarter) {
-      host.text.displayInteraction("pokemon-select-title", "pokemon-select-body", [
-        "choose-flamander",
-        "choose-aquaxol",
-        "choose-leafslime",
-      ]);
-    } else {
-      // Heal Pokemon if player has already chosen a starter
-      if (playerPokemon) {
-        playerPokemon.currentHp = playerPokemon.maxHp;
-        playerPokemon.status = "none";
-        host.text.displaySign("heal-title", "Your Pokemon has been fully healed!");
-      }
-    }
-  }
-  // Battle arena sensor
-  else if (name === "battle-arena" && entered && !inBattle) {
-    if (playerPokemon && hasChosenStarter) {
-      startBattle();
-    } else {
-      host.text.displaySign("no-pokemon-title", "You need to choose a starter Pokemon first!");
-    }
-  }
-  // Original sensor events (continued)
-  else if (name === "flame" && entered) {
-    host.text.displayInteraction("flame-title", "flame-body", []);
-  } else if (name === "knight" && entered) {
-    host.text.displayInteraction("knight-title", "knight-body", []);
-  } else if (name === "well" && entered) {
-    host.text.displayInteraction("well-title", "well-body", [
-      "jump-down",
-      "step-back",
-    ]);
-  } else if (name === "exit-east" && entered) {
-    host.map.exit("east", false);
-  } else if (name === "exit-west" && entered) {
-    host.map.exit("west", false);
-  } else if (name === "exit-south" && entered) {
-    host.map.exit("south", false);
-  }
-}
-
-// Start a Pokemon battle
-function startBattle(): void {
-  if (!playerPokemon) return;
-  
-  // Create a random wild Pokemon for the opponent
-  const starterPokemon = createStarterPokemon();
-  const starters = ["flamander", "aquaxol", "leafslime"];
-  const randomStarterIndex = Math.floor(Math.random() * starters.length);
-  const opponentPokemon = starterPokemon.get(starters[randomStarterIndex]);
-  
-  if (!opponentPokemon) return;
-  
-  // Create battle manager
-  battleManager = new BattleManager(playerPokemon, opponentPokemon);
-  
-  // Create battle UI
-  battleUI = new BattleUI(battleManager);
-  
-  // Set battle state
-  inBattle = true;
-  
-  // Stop regular music and play battle music
-  host.sound.setVolume(music, 0);
-  host.sound.setVolume(battleMusic, 0.5);
-  host.sound.play(battleMusic);
-  
-  // Initialize battle UI
-  battleUI.initialize();
-  
-  // Start battle
-  battleManager.startBattle();
-  
-  // Display battle start message
-  host.text.displaySign("battle-start-title", "battle-start-body");
-}
-
-// End a Pokemon battle
-function endBattle(): void {
-  if (!battleManager || !battleUI) return;
-  
-  // Handle battle result
-  if (battleManager.battleResult === BattleResult.PLAYER_WIN) {
-    host.text.displaySign("battle-win-title", "battle-win-body");
-  } else if (battleManager.battleResult === BattleResult.OPPONENT_WIN) {
-    host.text.displaySign("battle-lose-title", "battle-lose-body");
+  if (name === "battle-trigger" && entered && !battleActive) {
+    // Log that player entered the battle arena
+    log("PLAYER ENTERED BATTLE ARENA! Starting battle sequence...");
     
-    // Heal player's Pokemon to 1 HP to prevent softlock
-    if (playerPokemon) {
-      playerPokemon.currentHp = 1;
-    }
+    // Show message that player has entered the battle arena
+    host.text.displaySign("battle-arena-title", "battle-arena-body");
+    
+    // Start the battle with a slight delay
+    host.timer.start("start-battle", 1.5, false, 0);
   }
-  
-  // Clean up battle UI
-  battleUI.cleanUp();
-  
-  // Reset battle state
-  inBattle = false;
-  battleManager = null;
-  battleUI = null;
-  
-  // Resume regular music and stop battle music
-  host.sound.setVolume(music, 0.3);
-  host.sound.setVolume(battleMusic, 0);
-  host.sound.stop(battleMusic);
 }
 
-// Called when the game is paused, `tickRoom` stops ticking and this function
-// starts. Use this to advance things that you want to keep moving while the
-// game is paused.
+// Called when the game is paused
 export function pauseTick(timestep: f32): void {}
 
-// Called every frame. Use this to update your level in real-time. Timestep is
-// in milliseconds.
+// Called every frame.
 export function tickRoom(timestep: f32): void {
-  if (!inBattle) {
-    // Regular game update
+  if (!battleActive) {
+    // Normal game mode - update player position
     player.tick(timestep);
     host.player.setAction(player.action);
     host.player.setPos(player.pos.x, player.pos.y);
-    host.filters.setTiltShiftY(tsfid, player.pos.y - 10);
+    host.filters.setTiltShiftY(tsfid, player.pos.y);
   } else {
-    // Battle system update
-    if (battleManager && battleUI) {
-      // Update battle state
-      battleManager.update(timestep);
-      
-      // Update battle UI
-      battleUI.update();
-      
-      // Check if battle is over
-      if (battleManager.currentState === BattleState.BATTLE_END) {
-        // End battle after a short delay to show the end message
-        setTimeout(() => {
-          endBattle();
-        }, 3000);
-      }
-    }
+    // Battle mode - focus on battle arena
+    host.filters.setTiltShiftY(tsfid, -62);
   }
+}
 
-  // Uncomment this to sync the time of day with the real world.
-  // host.time.setSunTime(Date.now());
+// Helper function
+function max(a: i32, b: i32): i32 {
+  return a > b ? a : b;
 }

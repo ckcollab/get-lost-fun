@@ -1,31 +1,28 @@
 import { Card } from "@gl/types/card";
 
-// This is your level card. It powers the `Credits` link on your level. As you
-// add collaborators, include their details so they get credited for their work.
-// If you use any assets that require attribution (like many Creative Commons
-// licenses), include those as well.
+// This is your level card. It contains information about the level and credits.
 export function card(): Card {
   return {
     level: {
       name: "Pokemon Battle Arena",
-      version: 1,
+      version: 1.0,
     },
-    source: "https://github.com/your-username/pokemon-battle-arena",
+    source: null,
     credits: [
       {
-        name: "Your name",
-        role: "Developer",
-        link: "https://your-website.com",
+        name: "User",
+        role: "Creator",
+        link: null,
       },
       {
-        name: "Game Freak",
+        name: "Claude",
+        role: "Assistant Developer",
+        link: null,
+      },
+      {
+        name: "Nintendo/The Pokemon Company",
         role: "Original Pokemon Concept",
         link: "https://www.pokemon.com",
-      },
-      {
-        name: "GetLost Level Template",
-        role: "Base Template",
-        link: "https://getlost.city",
       },
     ],
   };

@@ -5,144 +5,13 @@ import { String } from "@gl/types/i18n";
 // manually translate. The rest will be machine translated.
 export function strings(): String[] {
   return [
-    {
-      key: "oasis-entry-title",
-      description: "The title of the oasis entry sign.",
-      values: [
-        {
-          text: "🏝️ Mysterious Oasis",
-          lang: "en",
-          age: 0,
-        },
-      ],
-    },
-    {
-      key: "oasis-entry-body",
-      description: "The body of the oasis entry sign.",
-      values: [
-        {
-          text: "There's something strange about the water here...",
-          lang: "en",
-          age: 0,
-        },
-      ],
-    },
-    {
-      key: "well-title",
-      description: "The title of the well interaction.",
-      values: [
-        {
-          text: "The Well",
-          lang: "en",
-          age: 0,
-        },
-      ],
-    },
-    {
-      key: "well-body",
-      description: "The body of the well interaction.",
-      values: [
-        {
-          text: "There's something at the bottom of the well.",
-          lang: "en",
-          age: 0,
-        },
-      ],
-    },
-    {
-      key: "jump-down",
-      description: "The action to jump into the well",
-      values: [
-        {
-          text: "Jump down",
-          lang: "en",
-          age: 0,
-        },
-      ],
-    },
-    {
-      key: "step-back",
-      description: "The action to step back from the well",
-      values: [
-        {
-          text: "Step back",
-          lang: "en",
-          age: 0,
-        },
-      ],
-    },
-    {
-      key: "flame-title",
-      description: "The title of the flame interaction.",
-      values: [
-        {
-          text: "The Flame",
-          lang: "en",
-          age: 0,
-        },
-      ],
-    },
-    {
-      key: "flame-body",
-      description: "The body of the flame interaction.",
-      values: [
-        {
-          text: "Can I help you?",
-          lang: "en",
-          age: 0,
-        },
-      ],
-    },
-    {
-      key: "knight-title",
-      description: "The title of the silent knight interaction.",
-      values: [
-        {
-          text: "The Silent Knight",
-          lang: "en",
-          age: 0,
-        },
-      ],
-    },
-    {
-      key: "knight-body",
-      description: "The body of the silent knight interaction.",
-      values: [
-        {
-          text: "...",
-          lang: "en",
-          age: 0,
-        },
-      ],
-    },
-    {
-      key: "arena-entry-title",
-      description: "The title of the battle arena entry sign.",
-      values: [
-        {
-          text: "🏟️ Pokemon Battle Arena",
-          lang: "en",
-          age: 0,
-        },
-      ],
-    },
-    {
-      key: "arena-entry-body",
-      description: "The body of the battle arena entry sign.",
-      values: [
-        {
-          text: "Test your skills in battle against wild Pokemon!",
-          lang: "en",
-          age: 0,
-        },
-      ],
-    },
+    // Battle UI strings
     {
       key: "battle-start-title",
-      description: "Title shown when starting a battle",
+      description: "The title of the battle start screen.",
       values: [
         {
-          text: "Battle Start!",
+          text: "🔥 Pokemon Battle! 🔥",
           lang: "en",
           age: 0,
         },
@@ -150,65 +19,87 @@ export function strings(): String[] {
     },
     {
       key: "battle-start-body",
-      description: "Description shown when starting a battle",
+      description: "The body of the battle start screen.",
       values: [
         {
-          text: "Get ready to battle!",
+          text: "Charizard vs. Bulbasaur!\nPrepare for battle!",
           lang: "en",
           age: 0,
         },
       ],
     },
     {
-      key: "battle-option-fight",
-      description: "Fight option in battle menu",
+      key: "welcome-title",
+      description: "The welcome title displayed when entering the game.",
       values: [
         {
-          text: "FIGHT",
+          text: "Welcome to Pokemon Battle Arena!",
           lang: "en",
           age: 0,
         },
       ],
     },
     {
-      key: "battle-option-pokemon",
-      description: "Pokemon option in battle menu",
+      key: "welcome-body",
+      description: "The welcome message explaining what to do.",
       values: [
         {
-          text: "POKEMON",
+          text: "Step into the battle arena to start a Pokemon battle!\nCharizard vs. Bulbasaur awaits!",
           lang: "en",
           age: 0,
         },
       ],
     },
     {
-      key: "battle-option-bag",
-      description: "Bag option in battle menu",
+      key: "battle-arena-title",
+      description: "The title displayed when entering the battle arena.",
       values: [
         {
-          text: "BAG",
+          text: "Battle Arena",
           lang: "en",
           age: 0,
         },
       ],
     },
     {
-      key: "battle-option-run",
-      description: "Run option in battle menu",
+      key: "battle-arena-body",
+      description: "The message displayed when entering the battle arena.",
       values: [
         {
-          text: "RUN",
+          text: "You've entered the Pokemon Battle Arena!\nPreparing for battle...",
           lang: "en",
           age: 0,
         },
       ],
     },
     {
-      key: "battle-move-select",
-      description: "Prompt to select a move",
+      key: "battle-status",
+      description: "The battle status display showing current HP.",
       values: [
         {
-          text: "What will {POKEMON} do?",
+          text: "Battle Status",
+          lang: "en",
+          age: 0,
+        },
+      ],
+    },
+    {
+      key: "battle-options-title",
+      description: "The title of the battle options screen.",
+      values: [
+        {
+          text: "Charizard's Turn",
+          lang: "en",
+          age: 0,
+        },
+      ],
+    },
+    {
+      key: "battle-options-body",
+      description: "The body of the battle options screen.",
+      values: [
+        {
+          text: "Choose an attack!",
           lang: "en",
           age: 0,
         },
@@ -216,10 +107,10 @@ export function strings(): String[] {
     },
     {
       key: "battle-win-title",
-      description: "Title shown when winning a battle",
+      description: "The title of the battle win screen.",
       values: [
         {
-          text: "Victory!",
+          text: "🏆 Victory! 🏆",
           lang: "en",
           age: 0,
         },
@@ -227,10 +118,10 @@ export function strings(): String[] {
     },
     {
       key: "battle-win-body",
-      description: "Message shown when winning a battle",
+      description: "The body of the battle win screen.",
       values: [
         {
-          text: "You won the battle!",
+          text: "Charizard defeated Bulbasaur!\nBulbasaur fainted!",
           lang: "en",
           age: 0,
         },
@@ -238,10 +129,10 @@ export function strings(): String[] {
     },
     {
       key: "battle-lose-title",
-      description: "Title shown when losing a battle",
+      description: "The title of the battle lose screen.",
       values: [
         {
-          text: "Defeat!",
+          text: "😢 Defeat! 😢",
           lang: "en",
           age: 0,
         },
@@ -249,65 +140,159 @@ export function strings(): String[] {
     },
     {
       key: "battle-lose-body",
-      description: "Message shown when losing a battle",
+      description: "The body of the battle lose screen.",
       values: [
         {
-          text: "You lost the battle!",
+          text: "Charizard was defeated!\nCharizard fainted!",
           lang: "en",
           age: 0,
         },
       ],
     },
     {
-      key: "pokemon-select-title",
-      description: "Title for selecting starter Pokemon",
+      key: "battle-end-title",
+      description: "The title of the battle end screen.",
       values: [
         {
-          text: "Choose Your Pokemon!",
+          text: "Battle Ended",
           lang: "en",
           age: 0,
         },
       ],
     },
     {
-      key: "pokemon-select-body",
-      description: "Message for selecting starter Pokemon",
+      key: "battle-end-body",
+      description: "The body of the battle end screen.",
       values: [
         {
-          text: "Which Pokemon will you choose as your partner?",
+          text: "The battle has ended.\nClick to restart.",
+          lang: "en",
+          age: 0,
+        },
+      ],
+    },
+    
+    // Player attack names
+    {
+      key: "attack-flamethrower",
+      description: "The name of the flamethrower attack.",
+      values: [
+        {
+          text: "Flamethrower",
           lang: "en",
           age: 0,
         },
       ],
     },
     {
-      key: "choose-flamander",
-      description: "Option to choose Flamander",
+      key: "attack-dragon-claw",
+      description: "The name of the dragon claw attack.",
       values: [
         {
-          text: "Flamander (Fire)",
+          text: "Dragon Claw",
           lang: "en",
           age: 0,
         },
       ],
     },
     {
-      key: "choose-aquaxol",
-      description: "Option to choose Aquaxol",
+      key: "attack-fire-spin",
+      description: "The name of the fire spin attack.",
       values: [
         {
-          text: "Aquaxol (Water)",
+          text: "Fire Spin",
+          lang: "en",
+          age: 0,
+        },
+      ],
+    },
+    
+    // Player attack messages
+    {
+      key: "player-attack-title",
+      description: "The title of the player attack message.",
+      values: [
+        {
+          text: "Charizard attacks!",
           lang: "en",
           age: 0,
         },
       ],
     },
     {
-      key: "choose-leafslime",
-      description: "Option to choose Leafslime",
+      key: "player-attack-flamethrower",
+      description: "The flamethrower attack message.",
       values: [
         {
-          text: "Leafslime (Grass)",
+          text: "Charizard used Flamethrower!\nIt's super effective!",
+          lang: "en",
+          age: 0,
+        },
+      ],
+    },
+    {
+      key: "player-attack-dragon-claw",
+      description: "The dragon claw attack message.",
+      values: [
+        {
+          text: "Charizard used Dragon Claw!\nA direct hit!",
+          lang: "en",
+          age: 0,
+        },
+      ],
+    },
+    {
+      key: "player-attack-fire-spin",
+      description: "The fire spin attack message.",
+      values: [
+        {
+          text: "Charizard used Fire Spin!\nBulbasaur is trapped in a fiery vortex!",
+          lang: "en",
+          age: 0,
+        },
+      ],
+    },
+    
+    // Opponent attack messages
+    {
+      key: "opponent-attack-title",
+      description: "The title of the opponent attack message.",
+      values: [
+        {
+          text: "Bulbasaur attacks!",
+          lang: "en",
+          age: 0,
+        },
+      ],
+    },
+    {
+      key: "opponent-attack-vine-whip",
+      description: "The vine whip attack message.",
+      values: [
+        {
+          text: "Bulbasaur used Vine Whip!\nIt's not very effective...",
+          lang: "en",
+          age: 0,
+        },
+      ],
+    },
+    {
+      key: "opponent-attack-razor-leaf",
+      description: "The razor leaf attack message.",
+      values: [
+        {
+          text: "Bulbasaur used Razor Leaf!\nCharizard took damage!",
+          lang: "en",
+          age: 0,
+        },
+      ],
+    },
+    {
+      key: "opponent-attack-solar-beam",
+      description: "The solar beam attack message.",
+      values: [
+        {
+          text: "Bulbasaur used Solar Beam!\nA critical hit!",
           lang: "en",
           age: 0,
         },
